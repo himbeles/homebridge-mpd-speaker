@@ -36,7 +36,7 @@ function MPD_SPEAKER(log, config) {
 
     this.log("... configuring mute characteristic");
     this.service
-        .getCharacteristic(new Characteristic.Mute())
+        .getCharacteristic(Characteristic.Mute)
         .on("get", this.getMuteState.bind(this))
         .on("set", this.setMuteState.bind(this));
 
