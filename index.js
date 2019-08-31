@@ -25,6 +25,38 @@ function MPD_SPEAKER(log, config) {
     this.volume = {};
     this.mute = {};
     this.power = { enabled: true };
+
+    const service = new Service.Speaker(this.name);
+
+    if (this.power.enabled) { // since im able to power off/on my speaker i decided to add the option to add the "On" Characteristic
+            this.log("... adding on characteristic");
+            service
+                .addCharacteristic(new Characteristic.On())
+                .on("get", this.getPowerState.bind(this))
+                .on("set", this.setPowerState.bind(this));
+        }
+
+    this.log("... configuring mute characteristic");
+    service
+        .getCharacteristic(Characteristic.Mute)
+        .on("get", this.getMuteState.bind(this))
+        .on("set", this.setMuteState.bind(this));
+
+    this.log("... adding volume characteristic");
+    service
+        .addCharacteristic(new Characteristic.Volume())
+        .on("get", this.getVolume.bind(this))
+        .on("set", this.setVolume.bind(this));
+
+    const informationService = new Service.AccessoryInformation();
+
+    informationService
+        .setCharacteristic(Characteristic.Manufacturer, "himbeles")
+        .setCharacteristic(Characteristic.Model, "MPD Speaker")
+        .setCharacteristic(Characteristic.SerialNumber, "SP01")
+        .setCharacteristic(Characteristic.FirmwareRevision, "1.0.0");
+    
+    this.log("... information service was set");
 }
 
 MPD_SPEAKER.prototype = {
@@ -34,41 +66,9 @@ MPD_SPEAKER.prototype = {
         callback();
     },
 
-    getServices: function () {
-        this.log("Creating speaker!");
-        const speakerService = new Service.Speaker(this.name);
-
-        if (this.power.enabled) { // since im able to power off/on my speaker i decided to add the option to add the "On" Characteristic
-            this.log("... adding on characteristic");
-            speakerService
-                .addCharacteristic(new Characteristic.On())
-                .on("get", this.getPowerState.bind(this))
-                .on("set", this.setPowerState.bind(this));
-        }
-
-        this.log("... configuring mute characteristic");
-        speakerService
-            .getCharacteristic(Characteristic.Mute)
-            .on("get", this.getMuteState.bind(this))
-            .on("set", this.setMuteState.bind(this));
-
-        this.log("... adding volume characteristic");
-        speakerService
-            .addCharacteristic(new Characteristic.Volume())
-            .on("get", this.getVolume.bind(this))
-            .on("set", this.setVolume.bind(this));
-
-        const informationService = new Service.AccessoryInformation();
-
-        informationService
-            .setCharacteristic(Characteristic.Manufacturer, "himbeles")
-            .setCharacteristic(Characteristic.Model, "MPD Speaker")
-            .setCharacteristic(Characteristic.SerialNumber, "SP01")
-            .setCharacteristic(Characteristic.FirmwareRevision, "1.0.0");
-        
-        this.log("... information service was set");
-        return [informationService, speakerService];
-    },
+    getServices: function() {
+      return [this.service];
+    }, 
 
     getMuteState: function (callback) {
         this.client.sendCommand(cmd("status", []), function(err, msg) {
