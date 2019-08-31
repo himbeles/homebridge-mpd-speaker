@@ -26,7 +26,7 @@ function MPD_SPEAKER(log, config) {
     this.mute = {};
     this.power = { enabled: true };
 
-    this.service = new Service.Speaker(this.name);
+    this.service = new Service.Fan(this.name);
 
     this.log("... adding on characteristic");
     this.service
@@ -34,15 +34,9 @@ function MPD_SPEAKER(log, config) {
         .on("get", this.getPowerState.bind(this))
         .on("set", this.setPowerState.bind(this));
 
-    this.log("... configuring mute characteristic");
-    this.service
-        .getCharacteristic(Characteristic.Mute)
-        .on("get", this.getMuteState.bind(this))
-        .on("set", this.setMuteState.bind(this));
-
     this.log("... adding volume characteristic");
     this.service
-        .addCharacteristic(new Characteristic.Volume())
+        .addCharacteristic(new Characteristic.RotationSpeed())
         .on("get", this.getVolume.bind(this))
         .on("set", this.setVolume.bind(this));
 }
