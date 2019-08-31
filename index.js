@@ -36,7 +36,7 @@ function MPD_SPEAKER(log, config) {
 
     this.log("... configuring mute characteristic");
     this.service
-        .getCharacteristic(Characteristic.Mute)
+        .getCharacteristic(new Characteristic.Mute())
         .on("get", this.getMuteState.bind(this))
         .on("set", this.setMuteState.bind(this));
 
@@ -59,6 +59,8 @@ MPD_SPEAKER.prototype = {
     }, 
 
     getMuteState: function (callback) {
+        var accessory = this;
+
         this.client.sendCommand(cmd("status", []), function(err, msg) {
             if (err) {
               callback(err);
@@ -99,6 +101,8 @@ MPD_SPEAKER.prototype = {
     },
 
     getPowerState: function (callback) {
+        var accessory = this;
+
         this.client.sendCommand(cmd("status", []), function(err, msg) {
             if (err) {
               callback(err);
