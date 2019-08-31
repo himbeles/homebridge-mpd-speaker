@@ -1,3 +1,5 @@
+"use strict";
+
 let Service, Characteristic;
 var mpd = require('mpd');
 var cmd = mpd.cmd;
@@ -63,7 +65,8 @@ MPD_SPEAKER.prototype = {
             .setCharacteristic(Characteristic.Model, "MPD Speaker")
             .setCharacteristic(Characteristic.SerialNumber, "SP01")
             .setCharacteristic(Characteristic.FirmwareRevision, "1.0.0");
-
+        
+        this.log("... information service was set");
         return [informationService, speakerService];
     },
 
