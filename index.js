@@ -1,8 +1,8 @@
 "use strict";
 
-let Service, Characteristic;
 var mpd = require('mpd');
 var cmd = mpd.cmd;
+let Service, Characteristic;
 
 module.exports = function (homebridge) {
     Service = homebridge.hap.Service;
@@ -26,37 +26,25 @@ function MPD_SPEAKER(log, config) {
     this.mute = {};
     this.power = { enabled: true };
 
-    const service = new Service.Speaker(this.name);
+    this.service = new Service.Speaker(this.name);
 
-    if (this.power.enabled) { // since im able to power off/on my speaker i decided to add the option to add the "On" Characteristic
-            this.log("... adding on characteristic");
-            service
-                .addCharacteristic(new Characteristic.On())
-                .on("get", this.getPowerState.bind(this))
-                .on("set", this.setPowerState.bind(this));
-        }
+    this.log("... adding on characteristic");
+    this.service
+        .addCharacteristic(new Characteristic.On())
+        .on("get", this.getPowerState.bind(this))
+        .on("set", this.setPowerState.bind(this));
 
     this.log("... configuring mute characteristic");
-    service
+    this.service
         .getCharacteristic(Characteristic.Mute)
         .on("get", this.getMuteState.bind(this))
         .on("set", this.setMuteState.bind(this));
 
     this.log("... adding volume characteristic");
-    service
+    this.service
         .addCharacteristic(new Characteristic.Volume())
         .on("get", this.getVolume.bind(this))
         .on("set", this.setVolume.bind(this));
-
-    const informationService = new Service.AccessoryInformation();
-
-    informationService
-        .setCharacteristic(Characteristic.Manufacturer, "himbeles")
-        .setCharacteristic(Characteristic.Model, "MPD Speaker")
-        .setCharacteristic(Characteristic.SerialNumber, "SP01")
-        .setCharacteristic(Characteristic.FirmwareRevision, "1.0.0");
-    
-    this.log("... information service was set");
 }
 
 MPD_SPEAKER.prototype = {
